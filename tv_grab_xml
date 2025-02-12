@@ -46,6 +46,8 @@ _SCRIPT_PATH = Path(sys.argv[0])
 _SCRIPT_ABS_PATH = _SCRIPT_PATH.resolve().parent
 # confif file absolute path
 _CONFIG_FILE = Path('~/.xmltv/{}.conf.json'.format(_SCRIPT_PATH.stem)).expanduser()
+# request user agent
+_USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
 
 
 def main():
@@ -157,7 +159,14 @@ def read_source(source, force_gzip=False):
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
-        file = urllib.request.urlopen(source, context=ctx)
+        req = urllib.request.Request(source)
+        req.add_header("User-Agent", _USER_AGENT)
+
+        try:
+            with urllib.request.urlopen(req, context=ctx) as response:
+                file = response.read().decode("utf-8")
+        except urllib.error.URLError as e:
+            print(f"Error opening URL: {e}")
 
     # XML_SOURCE is a file
     else:
