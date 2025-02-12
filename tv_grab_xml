@@ -21,6 +21,7 @@ import re
 import sys
 import json
 from pathlib import Path
+from io import StringIO
 
 try:
     import xml.etree.cElementTree as XmlParser
@@ -189,7 +190,7 @@ def write_config_json(config_file, xml_source, force_gzip, xml_source_file):
 
     # foreach 'channel' elements => fill channels dictionary (will write it in config_file)
     # note: 'iterparse' is used (instead of 'findall') for preserve memory
-    for event, element in XmlParser.iterparse(xml_source_file, events=('start', 'end')):
+    for event, element in XmlParser.iterparse(StringIO(xml_source_file), events=('start', 'end')):
         if event == 'start' and element.tag == 'channel':
             channels[element.attrib['id']] = default_channel_value
         element.clear()
